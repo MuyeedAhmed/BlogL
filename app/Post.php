@@ -16,5 +16,8 @@ class Post extends Model
     public $timestamps = true; 
     // its true by default, only add when we want to use "false"
 
+    public function user(){
+        return $this->belongsTo('App\User');
+    }
 
 }
