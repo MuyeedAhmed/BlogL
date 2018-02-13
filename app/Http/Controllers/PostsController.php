@@ -7,6 +7,16 @@ use App\Post;
 
 class PostsController extends Controller
 {
+/**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth', ['except'=>['index', 'show']]);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -15,7 +25,7 @@ class PostsController extends Controller
     public function index()
     {
         //$posts = Post::all();
-        $posts = Post::orderBy('id', 'desc')->paginate(2);
+        $posts = Post::orderBy('id', 'desc')->paginate(10);
         return view('posts.index')->with('posts', $posts);
     }
 
@@ -26,7 +36,6 @@ class PostsController extends Controller
      */
     public function create()
     {
-        
         return view('posts.create');
     }
 
@@ -73,6 +82,9 @@ class PostsController extends Controller
     public function edit($id)
     {
         $post = Post::find($id);
+        if(auth()->user()->id !== $post->user_id){
+            return redirect('\posts')->with('error', 'Unauthorized Request');
+        }
         return view('posts.edit')->with('post', $post);
     }
 
@@ -107,11 +119,12 @@ class PostsController extends Controller
     public function destroy($id)
     {
         $post = Post::find($id);
-        /*
+        
         // Check for correct user
         if(auth()->user()->id !==$post->user_id){
             return redirect('/posts')->with('error', 'Unauthorized Page');
         }
+        /*
         if($post->cover_image != 'noimage.jpg'){
             // Delete Image
             Storage::delete('public/cover_images/'.$post->cover_image);
